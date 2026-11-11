@@ -15,6 +15,7 @@
 
 ## Документация
 
+- [Автоматическая загрузка из GitHub](docs/github-deploy.md) — установка в GigaCowork через Chrome, без ZIP и ручного копирования файлов.
 - [Установка и запуск](docs/installation.md) — требования, установка в GigaCowork, локальный запуск и решение проблем.
 - [Использование агента](docs/usage.md) — входные файлы, формат результата и ограничения.
 - [Архитектура](docs/architecture.md) — устройство навыка и алгоритм распределения.
@@ -38,6 +39,20 @@ distribute-agent.zip
 Зависимости скрипта: Python 3.8+, openpyxl. Стандартная библиотека иначе.
 
 ## Установка в GigaCowork
+
+### Автоматически из GitHub, без архива
+
+```bash
+git clone https://github.com/ssdjet/gigacowork-distribute-agent.git
+cd gigacowork-distribute-agent
+python -m pip install -r requirements-deploy.txt
+python deploy_to_gigacowork.py
+```
+
+При первом запуске войдите в GigaCowork в открывшемся Chrome. Подробности и
+решение ошибок — в [инструкции автоматической загрузки](docs/github-deploy.md).
+
+### Вручную
 
 1. Распакуйте архив.
 2. Создайте (или откройте) агента, вставьте текст `system_prompt.txt`
@@ -92,8 +107,7 @@ python3 test-data/check_results.py ./result/result.xlsx
 прогонов: 3 запуска, 100% совпадение с эталоном (20/20 ФУЛ, все поля),
 0 выдуманных значений, идентичный SHA-256 результата, ~0,2 с на пачку.
 
-Готовый workflow для GitHub Actions находится в `ci/verify.yml`: 67 модульных
-тестов, три прогона со сверкой эталона и SHA-256, проверка автоматического
-определения ролей файлов и сохранение `result.xlsx` как артефакта. Для
-включения скопируйте файл в `.github/workflows/verify.yml` — см.
-[инструкцию](docs/testing.md#автоматическая-проверка-в-github-actions).
+GitHub Actions **verify** включён: 67 модульных тестов, три прогона со сверкой
+эталона и SHA-256, проверка автоматического определения ролей файлов и
+сохранение `result.xlsx` как артефакта. Проверки запускаются при push в `main`
+и pull request; готовый результат доступен в разделе Actions.

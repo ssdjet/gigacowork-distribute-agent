@@ -12,6 +12,24 @@
 
 ## 1. Установка агента в GigaCowork
 
+### Автоматически из GitHub, без архива
+
+На компьютере с Chrome выполните:
+
+```bash
+git clone https://github.com/ssdjet/gigacowork-distribute-agent.git
+cd gigacowork-distribute-agent
+python -m pip install -r requirements-deploy.txt
+python deploy_to_gigacowork.py
+```
+
+Скрипт скачает файлы из GitHub, заполнит форму агента и загрузит навык без ZIP.
+При первом запуске потребуется один раз войти в GigaCowork в открывшемся Chrome.
+Полная инструкция: [Автоматическая загрузка из GitHub](github-deploy.md).
+Реальный запуск в рабочем пространстве нужно подтвердить отдельно.
+
+### Вручную из архива
+
 1. Скачайте `distribute-agent.zip` из папки с артефактами
    (ссылка в README, раздел «Артефакты для сдачи») и распакуйте.
 2. В GigaCowork создайте нового агента или откройте существующего.

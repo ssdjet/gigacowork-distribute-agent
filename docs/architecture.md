@@ -39,7 +39,8 @@ result.xlsx + JSON-сводка в stdout
 | `test-data/generate_test_data.py` | синтетический набор с ловушками + эталон |
 | `test-data/check_results.py` | сверка результата с эталоном, метрики |
 | `tests/test_distribute.py` | 67 модульных проверок отдельных правил |
-| `ci/verify.yml` | готовый GitHub Actions: тесты, 3 прогона и SHA-256 |
+| `deploy_to_gigacowork.py` | загрузка отдельных файлов из GitHub в форму GigaCowork через Chrome |
+| `ci/verify.yml` | GitHub Actions: тесты, 3 прогона и SHA-256 |
 
 ## Устойчивость к формату входных файлов
 
