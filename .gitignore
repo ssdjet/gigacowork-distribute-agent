@@ -1,0 +1,8 @@
+# генерируемые артефакты
+*.xlsx
+*.pdf
+*.zip
+result/
+__pycache__/
+*.pyc
+.DS_Store
