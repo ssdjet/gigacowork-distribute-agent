@@ -256,8 +256,9 @@ def is_distributor(position):
     return any(w in p for w in ("ассистент", "руководитель", "начальник", "менеджер группы"))
 
 def is_active(state):
+    """Доступен только явно работающий сотрудник; прочие статусы — исключение."""
     s = norm(state)
-    return s.startswith("работает") or s in ("работаю", "active", "в работе") or ("отпуск" not in s and "увол" not in s and s != "")
+    return s.startswith("работает") or s in ("работаю", "active", "в работе")
 
 # ---------------------------------------------------------------------------
 # Сопоставление имён: короткие имена Cloud («Иванов», «Иванов И.И.») с ФИО 1С
@@ -267,32 +268,39 @@ def name_tokens(fio):
     return [t for t in re.split(r"\s+", norm(fio)) if t]
 
 def cloud_name_matches(name_cloud, fio):
-    """True, если значение колонки «Логист» Cloud относится к сотруднику fio."""
+    """Сопоставить полное ФИО, фамилию или фамилию с верными инициалами."""
     nc = norm(name_cloud)
-    if not nc:
-        return False
     fio_n = norm(fio)
-    if not fio_n:
+    if not nc or not fio_n:
         return False
-    if nc == fio_n or fio_n.startswith(nc) or nc.startswith(fio_n):
+    if nc == fio_n:
         return True
-    toks = name_tokens(fio)
-    if not toks:
+
+    fio_toks = name_tokens(fio)
+    cloud_toks = name_tokens(name_cloud)
+    if len(fio_toks) < 2 or not cloud_toks or cloud_toks[0] != fio_toks[0]:
         return False
-    surname = toks[0]
-    # «Иванов» или «Иванов и.и.» / «иванов и и»
-    if nc == surname:
+    # Только фамилия. Неоднозначность однофамильцев разрешает match_logistician.
+    if len(cloud_toks) == 1:
         return True
-    if nc.startswith(surname) and len(nc) <= len(surname) + 6:
+    # «Иванов Иван» или «Иванов Иван Иванович», но не просто «И».
+    if fio_n.startswith(nc):
         return True
-    return False
+
+    # «Иванов И.И.» / «иванов и и»: инициалы должны совпасть полностью.
+    cloud_initials = re.sub(r"[^0-9a-zа-яё]", "", "".join(cloud_toks[1:]))
+    expected_initials = "".join(t[0] for t in fio_toks[1:] if t)
+    return bool(cloud_initials) and cloud_initials == expected_initials
 
 def match_logistician(cloud_name, staff):
-    """Cloud-имя -> сотрудник из 1С или None."""
-    for emp in staff:
-        if cloud_name_matches(cloud_name, emp["name"]):
-            return emp
-    return None
+    """Cloud-имя -> единственный подходящий сотрудник или None."""
+    matches = [emp for emp in staff
+               if cloud_name_matches(cloud_name, emp["name"])]
+    if len(matches) == 1:
+        return matches[0]
+    # Полное совпадение ФИО имеет приоритет над совпадением только по фамилии.
+    exact = [emp for emp in matches if norm(cloud_name) == norm(emp["name"])]
+    return exact[0] if len(exact) == 1 else None
 
 # ---------------------------------------------------------------------------
 # Основной алгоритм
